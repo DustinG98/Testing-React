@@ -5,23 +5,26 @@ import { getData } from "../api";
 import "./star-wars-characters.css";
 
 export default function StarWarsCharacters() {
-  const [url, setUrl] = useState("https://swapi.co/api/people");
+  const [query, setQuery] = useState("people")
+  const [url, setUrl] = useState(`https://swapi.co/api/people`);
   const [previous, setPrevious] = useState();
   const [next, setNext] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [characters, setCharacters] = useState([]);
+
+
   useEffect(() => {
     setIsLoading(true);
+    setUrl("https://swapi.co/api/" + query)
     const getCharacters = async () => {
       const characters = await getData(url);
-      console.log(characters);
       setNext(characters.next);
       setPrevious(characters.previous);
       setCharacters(characters.results);
       setIsLoading(false);
     };
     getCharacters();
-  }, [url]);
+  }, [url, query]);
 
   const goToNext = e => {
     e.preventDefault();
@@ -33,8 +36,19 @@ export default function StarWarsCharacters() {
     setUrl(previous);
   };
 
+  const handleQueryChange = e => {
+    setQuery(e.target.value)
+  }
+
   return (
     <div>
+      <select data-testid="select" value={query} onChange={e => handleQueryChange(e)}>
+        <option value="people">People</option>
+        <option value="planets">Planets</option>
+        <option value="starships">Starships</option>
+        <option value="vehicles">Vehicles</option>
+        <option value="species">Species</option>
+      </select>
       {isLoading ? (
         <Loader
           type="ThreeDots"
@@ -46,7 +60,7 @@ export default function StarWarsCharacters() {
       ) : (
         <>
           {characters.map(character => (
-            <div key={character.url}>{character.name}</div>
+            <div data-testid="character" key={character.url}>{character.name}</div>
           ))}
         </>
       )}

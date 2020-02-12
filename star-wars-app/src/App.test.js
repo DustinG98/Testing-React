@@ -5,6 +5,7 @@ import * as rtl from '@testing-library/react'
 import "@testing-library/jest-dom/extend-expect"
 import App from './App'
 
+
 jest.mock("axios", () => {
     return {
         get: jest.fn(() => Promise.resolve({
@@ -53,4 +54,16 @@ test("Previous Page makes an api call when on the second page", async () => {
     expect(axios.get).toHaveBeenCalled()
     const characters = await wrapper.findAllByTestId("character")
     expect(characters).not.toBeNull()
+})
+
+
+//select triggers api call on value change
+test("select triggers api call", async () => {
+    const wrapper = rtl.render(<App/>)
+
+    const select = await wrapper.findByTestId('select')
+    await rtl.act(async () => {
+        rtl.fireEvent.change(select, { target: {value: 'starships'} })
+    })
+    expect(axios.get).toHaveBeenCalled()
 })

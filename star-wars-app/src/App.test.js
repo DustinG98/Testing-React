@@ -17,10 +17,40 @@ jest.mock("axios", () => {
 
 afterEach(rtl.cleanup)
 
+//makes api call on initial render
 test("Made API Call", async () => {
     const wrapper = rtl.render(<App/>)
 
     await wrapper.findAllByTestId("character")
 
     expect(axios.get).toHaveBeenCalled()
+})
+
+//next button makes an api call and displays characters
+test("Next Page makes an api call", async () => {
+    const wrapper = rtl.render(<App/>)
+
+    const next = wrapper.getByText(/next/i)
+    rtl.act(() => {
+        rtl.fireEvent.click(next)
+    })
+    expect(axios.get).toHaveBeenCalled()
+    const characters = await wrapper.findAllByTestId("character")
+    expect(characters).not.toBeNull()
+})
+
+//previous button makes an api call and displays characters
+test("Previous Page makes an api call when on the second page", async () => {
+    const wrapper = rtl.render(<App/>)
+
+    const next = wrapper.getByText(/next/i)
+    const previous = wrapper.getByText(/previous/i)
+
+    rtl.act(() => {
+        rtl.fireEvent.click(next)
+        rtl.fireEvent.click(previous)
+    })
+    expect(axios.get).toHaveBeenCalled()
+    const characters = await wrapper.findAllByTestId("character")
+    expect(characters).not.toBeNull()
 })
